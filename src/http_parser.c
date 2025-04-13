@@ -11,18 +11,18 @@
 #include "http_parser.h"
 
 // Method from server.c
-char* find_CRLF(char* buffer){
-    char* header = NULL;
-    char* temp = buffer;
-    while((temp = strstr(temp, "\r\n\r\n"))){
-        header = temp;
-        temp += 4;
-    }
-    if(header){
-        *header = '\0';
-    }
-    return buffer;
-}
+// char* find_CRLF(char* buffer){
+//     char* header = NULL;
+//     char* temp = buffer;
+//     while((temp = strstr(temp, "\r\n\r\n"))){
+//         header = temp;
+//         temp += 4;
+//     }
+//     if(header){
+//         *header = '\0';
+//     }
+//     return buffer;
+// }
 
 
 // Method to print the line
