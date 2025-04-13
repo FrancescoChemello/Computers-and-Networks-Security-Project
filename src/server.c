@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 
 // Parser header file
-#include "http_parser.h"
+#include "server.h"
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
@@ -31,24 +31,12 @@ char* find_CRLF(char* buffer){
     return buffer;
 }
 
-int main() {
+void server(){
     int server_fd, new_socket;
     struct sockaddr_in address;
     socklen_t addrlen = sizeof(address);
     char buffer[BUFFER_SIZE] = {0};
     const char* response = NULL;
-
-    // Creation of the tree
-    ACtree = create_tree();
-    if (ACtree == NULL) {
-        return 1; // Exit if tree creation fails
-    }
-
-    // Add patterns to the tree
-    add_string(ACtree, "SELECT * FROM datatable\0");
-    add_string(ACtree, "(){;}; echo /bin/ls\0");
-    add_string(ACtree, "DELETE datatable\0");
-    add_string(ACtree, "DROP TABLE database\0");
 
     // Socket creation
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -103,7 +91,8 @@ int main() {
         }
         if(strcmp(method, "GET") == 0) {
 
-            printf("GET method detected!\n");
+            // For debugging purposes
+            // printf("GET method detected!\n");
 
             // 2. Extract the section to analize with the parser
             // I analize only the header of the request
@@ -114,17 +103,20 @@ int main() {
                 continue;
             }
 
-            printf("Parser called!\n");
+            // For debugging purposes
+            // printf("Parser called!\n");
 
             // 3. Call the parser function with the header
             malicious = header_parser(header, strlen(header)); // Call the parser function with the header
 
-            printf("Parsing compleated!\n");
+            // For debugging purposes
+            // printf("Parsing compleated!\n");
 
         }else{
             if(strcmp(method, "POST") == 0){
 
-                printf("POST method detected!\n");
+                // For debugging purposes
+                // printf("POST method detected!\n");
 
                 // 2. Extract the section to analize with the parser
                 // I analize both header and body of the request
@@ -143,12 +135,14 @@ int main() {
                     continue;
                 }
 
-                printf("Parser called!\n");
+                // For debugging purposes
+                // printf("Parser called!\n");
 
                 // 3. Call the parser function with the header
                 malicious = header_body_parser(header, strlen(header), body, strlen(body)); // Call the parser function with the header and body
             
-                printf("Parsing compleated!\n");
+                // For debugging purposes
+                // printf("Parsing compleated!\n");
 
             }else{
                 // If the request is neither GET nor POST, handle it accordingly
@@ -159,7 +153,8 @@ int main() {
         // 4. If the output is true (malicious), then I refuse the connection; otherwise I send back the response
         if(malicious) {
 
-            printf("Malicious request detected!\n");
+            // For debugging purposes
+            // printf("Malicious request detected!\n");
 
             // If the parser detects a malicious request, send a 403 Forbidden response
             response =
@@ -181,15 +176,15 @@ int main() {
                 "Hello, user!\n";
         }
 
-        printf("Sending the response\n");
+        // For debugging purposes
+        // printf("Sending the response\n");
 
         // Send back the response
         send(new_socket, response, strlen(response), 0);
         close(new_socket);
 
-        printf("DONE!\n");
+        // For debugging purposes
+        // printf("DONE!\n");
 
     }
-
-    return 0;
 }
