@@ -1,0 +1,12 @@
+# Francesco Chemello	2121346
+# Computers and Networks Security Project
+
+# Makefile for the projects
+
+CC = gcc
+
+main: main.c server.c http_parser.c ahocorasick/ahocorasick.c
+	${CC} -O0 $^ -o main
+
+clean:
+	rm -f main
