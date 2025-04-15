@@ -39,7 +39,7 @@ ACtree_t * init_tree_from_file(const char *filename, ACtree_t * ACtree) {
 
     char line[256]; // Buffer to store each line from the file
     while(fgets(line, sizeof(line), file)){ // Read each line from the file
-        line[strcspn(line, "\n")] = 0; // Remove the newline character from the end of the line
+        line[strcspn(line, "\r\n")] = 0; // Remove the newline character from the end of the line
         add_string(ACtree, line); // Add the pattern to the tree
     }
 

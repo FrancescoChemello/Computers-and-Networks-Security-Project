@@ -116,7 +116,7 @@ void server(){
             if(strcmp(method, "POST") == 0){
 
                 // For debugging purposes
-                // printf("POST method detected!\n");
+                printf("POST method detected!\n");
 
                 // 2. Extract the section to analize with the parser
                 // I analize both header and body of the request
@@ -154,7 +154,7 @@ void server(){
         if(malicious) {
 
             // For debugging purposes
-            // printf("Malicious request detected!\n");
+            printf("Malicious request detected!\n\n");
 
             // If the parser detects a malicious request, send a 403 Forbidden response
             response =
@@ -165,7 +165,7 @@ void server(){
                 "Forbidden: Malicious request detected!\n";
         }else{
 
-            printf("Request is safe!\n");
+            printf("Request is safe!\n\n");
 
             // Example response message
             response =
@@ -182,9 +182,5 @@ void server(){
         // Send back the response
         send(new_socket, response, strlen(response), 0);
         close(new_socket);
-
-        // For debugging purposes
-        // printf("DONE!\n");
-
     }
 }

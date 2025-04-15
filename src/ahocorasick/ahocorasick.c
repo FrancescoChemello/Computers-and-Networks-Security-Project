@@ -72,6 +72,7 @@ Node_t* create_node(){
     new_node->parent = NULL;
     new_node->fail_link = NULL;
     new_node->num_children = 0;
+    new_node->end_of_string = false; // Initialize end_of_string to false
     new_node->children = NULL; // Initialize children to NULL
 
     return new_node;
@@ -88,7 +89,7 @@ ACtree_t* create_tree(){
 
     // Initialize the tree with the root node
     tree->root_node = create_node(); // Create the root node
-    ((Node_t*)tree->root_node)->value = '*';
+    ((Node_t*)tree->root_node)->value = '\0';
     ((Node_t*)tree->root_node)->fail_link = (Node_t*)tree->root_node;
     tree->num_nodes = 0; // Initialize the number of nodes to 0
     if (tree->root_node == NULL) {
@@ -201,12 +202,12 @@ ACtree_t* add_string(ACtree_t* ACtree, char* keyword){
 
 // Function to check if a character is a separator (whitespace, comma, period, etc.)
 bool is_separator(char c){
-    return (c == ' ' || c == '\t' || c == '\n');
+    return (c == ' ' || c == '&' || c == '$' || c == '%' || c == '=' || c == '#' || c == '\0' || c == '\t' || c == '\n');
 }
 
 // Function to print the word found (recursive function)
 void match(Node_t* node){
-    if(((Node_t* )node)->parent != NULL && ((Node_t*)node)->parent->value != '*'){
+    if(((Node_t* )node)->parent != NULL && ((Node_t*)node)->parent->value != '\0'){
         match(((Node_t*)node)->parent); // Recursive call to print the parent node
     }
     printf("%c", ((Node_t*)node)->value);
@@ -240,13 +241,13 @@ bool parser(char* input, int len, ACtree_t* ACtree){
     for(int i = 0; i < len; i++){
         // Cast the character to lower case
         char c = tolower((unsigned char)input[i]); // Convert to lowercase using tolower function
-        
+
         current_node = iter(current_node, c);
 
         // Check if the current_node is equal to root
         if(((Node_t*)current_node)->parent == NULL){
-            // I skip the rest of the word (i.e iterate until I find a white space or I finish the input)
-            while(input[i] != ' ' && !is_separator(input[i]) && i < len){
+            // I skip the rest of the word (i.e iterate until I find a white space/separator or I finish the input)
+            while(i < len && !is_separator(input[i])){
                 i++;
             }
             continue;
@@ -265,92 +266,3 @@ bool parser(char* input, int len, ACtree_t* ACtree){
     }
     return eval;
 }
-
-/**
- // Main function to test the Aho-Corasick algorithm
- int main(){
-    // Create a new tree
-    ACtree_t* ACtree = create_tree();
-    if (ACtree == NULL) {
-        return 1; // Exit if tree creation fails
-    }
-    
-    // Add strings to the tree
-    add_string(ACtree, "HE\0");
-    add_string(ACtree, "she\0");
-    add_string(ACtree, "his\0");
-    add_string(ACtree, "heR\0");
-    
-    printf("ACtree_t created successfully\n");
-    printf("Number of nodes in the tree: %d\n", ACtree->num_nodes);
-
-    // Print tree
-    printf("ACtree_t structure:\n");
-    print_tree(ACtree); // Print the tree structure starting from the root node
-    printf("\n");
-    
-    // Input string to search for
-    char test_1[] = "his name is Albert.\0"; 
-    char test_2[] = "Television rule the nation\0";
-    char test_3[] = "Sheron is a doctor, she is a friend of mine\0";
-    char test_4[] = "wherever I go here I am\0";
-    char test_5[] = "history sheldon, herbe hehe!\0";
-    char test_6[] = "#$%&/()=?\0"; // Test with special characters
-    char test_7[] = "1 2 345 67 8 900\0";
-    char test_8[] = "He is Marco. He is a friend of mine. His girlfriend is Marta. She is a nurse.\0";
-    
-    
-    printf("Test 1: \"%s\"\n", test_1); // Print the input string
-    if(!(parser(test_1, sizeof(test_1), ACtree))){
-        printf("No match found\n", test_1); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-    
-    printf("Test 2: \"%s\"\n", test_2); // Print the input string
-    if(!(parser(test_2, sizeof(test_2), ACtree))){
-        printf("No match found\n", test_2); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-
-    printf("Test 3: \"%s\"\n", test_3); // Print the input string
-    if(!(parser(test_3, sizeof(test_3), ACtree))){
-        printf("No match found\n", test_3); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-
-    printf("Test 4: \"%s\"\n", test_4); // Print the input string
-    if(!(parser(test_4, sizeof(test_4), ACtree))){
-        printf("No match found\n", test_4); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-    
-    printf("Test 5: \"%s\"\n", test_5); // Print the input string
-    if(!(parser(test_5, sizeof(test_5), ACtree))){
-        printf("No match found\n", test_5); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-
-    printf("Test 6: \"%s\"\n", test_6); // Print the input string
-    if(!(parser(test_6, sizeof(test_6), ACtree))){
-        printf("No match found\n", test_6); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-
-    printf("Test 7: \"%s\"\n", test_7); // Print the input string
-    if(!(parser(test_7, sizeof(test_7), ACtree))){
-        printf("No match found\n", test_7); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-    
-    printf("Test 8: \"%s\"\n", test_8); // Print the input string
-    if(!(parser(test_8, sizeof(test_8), ACtree))){
-        printf("No match found\n", test_8); // Print the input string
-    }
-    printf("Initlial patterns: he, she, his, her\n\n"); // Print the initial patterns
-    
-    // Delete the tree to free memory
-    delete_tree(ACtree);
-
-    return 0;
-}
-*/
