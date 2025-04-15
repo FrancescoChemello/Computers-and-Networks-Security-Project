@@ -28,7 +28,10 @@ ACtree_t * init_tree_from_file(const char *filename, ACtree_t * ACtree) {
         }
     }
 
-    FILE *file = fopen(filename, "r"); // Open the file in read mode
+    char full_path[256];
+    snprintf(full_path, sizeof(full_path), "ahocorasick/patterns/%s", filename); // Construct the full path
+
+    FILE *file = fopen(full_path, "r"); // Open the file in read mode
     if(file == NULL){
         perror("Failed to open file");
         return NULL; // Return NULL if the file cannot be opened
@@ -48,32 +51,21 @@ int main(int argc, char ** argv){
     
     // Check the line agruments
     // Is possible to add more than one file, depending on the patterns to analize
-    // if(argc < 2){
-    //     printf("Usage: %s <patterns_file>\n", argv[0]);
-    //     return 1;
-    // }
+    if(argc < 2){
+        printf("Usage: %s <patterns_file>\n", argv[0]);
+        return 1;
+    }
 
-    // ACtree = NULL;
+    ACtree = NULL;
 
-    // // Add patterns to the tree from the file patterns.txt
-    // for(int i = 1; i < argc; i++){
-    //     ACtree = init_tree_from_file(argv[i], ACtree); // Create the Aho-Corasick tree from the file
-    //     // Check if the tree was created successfully
-    //     if (ACtree == NULL) {
-    //         return 1; // Exit if tree creation fails
-    //     }
-    // }
-
-        ACtree = create_tree();
+    // Add patterns to the tree from the file patterns.txt
+    for(int i = 1; i < argc; i++){
+        ACtree = init_tree_from_file(argv[i], ACtree); // Create the Aho-Corasick tree from the file
+        // Check if the tree was created successfully
         if (ACtree == NULL) {
             return 1; // Exit if tree creation fails
         }
-
-        // Add patterns to the tree
-        add_string(ACtree, "SELECT * FROM datatable\0");
-        add_string(ACtree, "(){;}; echo /bin/ls\0");
-        add_string(ACtree, "DELETE datatable\0");
-        add_string(ACtree, "DROP TABLE database\0");
+    }
 
     // Start the server
     server();
