@@ -8,6 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <ctype.h>
+#include <time.h>
 // Linux libraries
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -31,12 +33,41 @@ char* find_CRLF(char* buffer){
     return buffer;
 }
 
+char* decoding(char* text, int text_len){
+    char* decoded_text = (char*)malloc(text_len + 1);
+    if(decoded_text == NULL) {
+        perror("Failed to allocate memory for decoded text");
+        return NULL;
+    }
+    int j = 0;
+    for(int i = 0; i < text_len; i++){
+        if(text[i] == '%'){
+            // Verifica che ci siano almeno due caratteri dopo '%'
+            if(i + 2 < text_len && isxdigit(text[i + 1]) && isxdigit(text[i + 2])) {
+                int value;
+                sscanf(text + i + 1, "%2x", &value);
+                decoded_text[j++] = (char)value;
+                i += 2; // Salta i due caratteri processati
+            } else {
+                // Se non è valido, copia il carattere '%' normalmente
+                decoded_text[j++] = text[i];
+            }
+        } else {
+            decoded_text[j++] = text[i];
+        }
+    }
+    decoded_text[j] = '\0';
+    return decoded_text;
+}
+
 void server(){
     int server_fd, new_socket;
     struct sockaddr_in address;
     socklen_t addrlen = sizeof(address);
     char buffer[BUFFER_SIZE] = {0};
     const char* response = NULL;
+
+    time_t start, end;
 
     // Socket creation
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -89,14 +120,24 @@ void server(){
             continue;
         
         }
-        if(strcmp(method, "GET") == 0) {
+        if(strcmp(method, "GET") == 0 || strcmp(method, "HEAD") == 0 || strcmp(method, "DELETE") == 0 || strcmp(method, "OPTIONS") == 0 || strcmp(method, "TRACE") == 0) {
 
             // For debugging purposes
-            // printf("GET method detected!\n");
-
+            // printf("%s method detected!\n", method);
+            
+            start = time(NULL);
+            
             // 2. Extract the section to analize with the parser
             // I analize only the header of the request
             char* header = find_CRLF(buffer); // Extract the header part of the request
+            if(header == NULL) {
+                perror("Failed to parse request header");
+                close(new_socket);
+                continue;
+            }
+
+            // Check if the header is encoded
+            header = decoding(header, strlen(header)); // Decode the header if it is encoded
             if(header == NULL) {
                 perror("Failed to parse request header");
                 close(new_socket);
@@ -108,29 +149,76 @@ void server(){
 
             // 3. Call the parser function with the header
             malicious = header_parser(header, strlen(header)); // Call the parser function with the header
+            
+            end = time(NULL);
+            printf("Time taken to check the request: %ld milliseconds\n", (end - start)*1000); // Print the time for checking the request
+
+            free(header);
 
             // For debugging purposes
             // printf("Parsing compleated!\n");
 
         }else{
-            if(strcmp(method, "POST") == 0){
+            if(strcmp(method, "POST") == 0 || strcmp(method, "PUT") == 0 || strcmp(method, "PATCH") == 0) {
 
                 // For debugging purposes
-                printf("POST method detected!\n");
+                // printf("%s method detected!\n, method");
+
+                start = time(NULL);
 
                 // 2. Extract the section to analize with the parser
                 // I analize both header and body of the request
                 char* header = find_CRLF(buffer); // Extract the header part of the request
                 if(header == NULL) {
                     perror("Failed to parse request header");
+                    response = "HTTP/1.1 500 Internal Server Error\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: 54\r\n"
+                               "\r\n"
+                               "Internal Server Error: Failed to parse request header\n";
+                    send(new_socket, response, strlen(response), 0);
                     close(new_socket);
                     continue;
                 }
+
+                header = decoding(header, strlen(header)); // Decode the header if it is encoded
+                if(header == NULL) {
+                    perror("Failed to decode header");
+                    response = "HTTP/1.1 500 Internal Server Error\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: 47\r\n"
+                               "\r\n"
+                               "Internal Server Error: Failed to decode header\n";
+                    send(new_socket, response, strlen(response), 0);
+                    close(new_socket);
+                    continue;
+                }
+                
                 char body_buffer[sizeof(buffer)-strlen(header)-4];
                 strcpy(body_buffer, buffer + strlen(header) + 4);
                 char* body = find_CRLF(body_buffer); // Extract the body part of the request
                 if(body == NULL) {
                     perror("Failed to parse request body");
+                    perror("Failed to parse request body");
+                    response = "HTTP/1.1 500 Internal Server Error\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: 52\r\n"
+                               "\r\n"
+                               "Internal Server Error: Failed to parse request body\n";
+                    send(new_socket, response, strlen(response), 0);
+                    close(new_socket);
+                    continue;
+                }
+
+                body = decoding(body, strlen(body)); // Decode the body if it is encoded
+                if(body == NULL) {
+                    perror("Failed to decode body");
+                    response = "HTTP/1.1 500 Internal Server Error\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: 45\r\n"
+                               "\r\n"
+                               "Internal Server Error: Failed to decode body\n";
+                    send(new_socket, response, strlen(response), 0);
                     close(new_socket);
                     continue;
                 }
@@ -140,7 +228,13 @@ void server(){
 
                 // 3. Call the parser function with the header
                 malicious = header_body_parser(header, strlen(header), body, strlen(body)); // Call the parser function with the header and body
-            
+                end = time(NULL);
+
+                printf("Time taken to check the request: %ld milliseconds\n", (end - start)*1000); // Print the time for checking the request
+
+                free(header);
+                free(body);
+
                 // For debugging purposes
                 // printf("Parsing compleated!\n");
 
