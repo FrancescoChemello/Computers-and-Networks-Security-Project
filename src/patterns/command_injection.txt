@@ -1,0 +1,41 @@
+() { :;};
+() { :; };
+() { } ;
+() { _; };
+() { :;}; /bin/bash
+() { :;}; echo
+() { :;}; cat
+() { :;}; cat
+() { :;}; /cat
+() { :;}; curl
+() { :;}; /bin/sh
+() { :;}; rm -rf /
+/usr/bin/env bash
+ifconfig
+-e /bin/sh
+net localgroup
+netsh firewall set opmode disable
+net view
+perl -e 'print
+reg add
+route
+sysinfo
+system('cat
+system('curl
+system('echo
+systeminfo
+system('wget
+/usr/bin/id
+which curl
+which gcc
+which nc
+which netcat
+which perl
+which python
+which wget
+/bin/bash -i >
+/bin/sh -i >
+0<&1 2>&1
+`reboot`
+&& whoami
+; ls -la
