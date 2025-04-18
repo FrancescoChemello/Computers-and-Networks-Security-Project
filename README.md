@@ -27,10 +27,21 @@ sudo apt update && sudo apt install gcc make
 
 ## Repository Structure ##
 The repository is organised as follows:
-* src: contains the main source code for the project.
-    * ahocorasick: contains the script for the Aho-Corasick algorithm.
-        * pattern: contains the pattern in a *'.txt'* file.
-    * Makefile: compilation instructions.
+* **src:** contains the main source code for the project.
+    * **ahocorasick:** contains the script for the Aho-Corasick algorithm.
+        * *ahocorasick.c*.
+        * *ahocorasick.h*.
+    * **http_parser:** contains the script for the HTTP parser.
+        * *http_parser.c*.
+        * *http_parser.h*.
+    * **pattern:** contains the pattern in a *'.txt'* file.
+        * *\*.txt*.
+    * **server:** contains a simple implementation of an HTTP server.
+        * *server.c*.
+        * *server.h*.
+    * *main.c*.
+    * *main.h*.
+    * **Makefile:** compilation instructions.
 * README: project documentation. 
 
 ## How to run the program ##

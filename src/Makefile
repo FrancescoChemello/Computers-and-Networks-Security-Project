@@ -5,7 +5,7 @@
 
 CC = gcc
 
-main: main.c server.c http_parser.c ahocorasick/ahocorasick.c
+main: main.c server/server.c http_parser/http_parser.c ahocorasick/ahocorasick.c
 	${CC} -O0 $^ -o main
 
 clean:

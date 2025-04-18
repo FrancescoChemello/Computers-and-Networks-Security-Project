@@ -29,7 +29,7 @@ ACtree_t * init_tree_from_file(const char *filename, ACtree_t * ACtree) {
     }
 
     char full_path[256];
-    snprintf(full_path, sizeof(full_path), "ahocorasick/patterns/%s", filename); // Construct the full path
+    snprintf(full_path, sizeof(full_path), "patterns/%s", filename); // Construct the full path
 
     FILE *file = fopen(full_path, "r"); // Open the file in read mode
     if(file == NULL){
