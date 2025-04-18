@@ -125,7 +125,7 @@ void server(){
             // For debugging purposes
             // printf("%s method detected!\n", method);
             
-            start = time(NULL);
+            start = clock();
             
             // 2. Extract the section to analize with the parser
             // I analize only the header of the request
@@ -150,8 +150,8 @@ void server(){
             // 3. Call the parser function with the header
             malicious = header_parser(header, strlen(header)); // Call the parser function with the header
             
-            end = time(NULL);
-            printf("Time taken to check the request: %ld milliseconds\n", (end - start)*1000); // Print the time for checking the request
+            end = clock();
+            printf("Time taken to check the request: %ld milliseconds\n", (end - start)); // Print the time for checking the request
 
             free(header);
 
@@ -164,7 +164,7 @@ void server(){
                 // For debugging purposes
                 // printf("%s method detected!\n, method");
 
-                start = time(NULL);
+                start = clock();
 
                 // 2. Extract the section to analize with the parser
                 // I analize both header and body of the request
@@ -228,9 +228,9 @@ void server(){
 
                 // 3. Call the parser function with the header
                 malicious = header_body_parser(header, strlen(header), body, strlen(body)); // Call the parser function with the header and body
-                end = time(NULL);
+                end = clock();
 
-                printf("Time taken to check the request: %ld milliseconds\n", (end - start)*1000); // Print the time for checking the request
+                printf("Time taken to check the request: %ld milliseconds\n", (end - start)); // Print the time for checking the request
 
                 free(header);
                 free(body);
