@@ -200,11 +200,6 @@ ACtree_t* add_string(ACtree_t* ACtree, char* keyword){
     return ACtree; // Return the tree
 }
 
-// Function to check if a character is a separator (whitespace, comma, period, etc.)
-bool is_separator(char c){
-    return (c == ' ' || c == '&' || c == '$' || c == '%' || c == '=' || c == '#' || c == '\0' || c == '\t' || c == '\n');
-}
-
 // Function to print the word found (recursive function)
 void match(Node_t* node){
     if(((Node_t* )node)->parent != NULL && ((Node_t*)node)->parent->value != '\0'){
@@ -235,34 +230,76 @@ Node_t* iter(Node_t* node, char input){
 
 // Input parser
 bool parser(char* input, int len, ACtree_t* ACtree){
-    bool eval = false;
+    bool eval = false; // Final evaluation (malicious or not)
     Node_t* current_node = ((ACtree_t*)ACtree)->root_node; // Start from the root node
-    // Iterate through the input, one character at time
-    for(int i = 0; i < len; i++){
-        // Cast the character to lower case
-        char c = tolower((unsigned char)input[i]); // Convert to lowercase using tolower function
+    bool still_in_root = true;
 
+    for(int i = 0; i < len; i++){
+        char c = tolower((unsigned char)input[i]); // to lower case
+
+        // iter
         current_node = iter(current_node, c);
 
-        // Check if the current_node is equal to root
+        // Do you get root?
         if(((Node_t*)current_node)->parent == NULL){
-            // I skip the rest of the word (i.e iterate until I find a white space/separator or I finish the input)
-            while(i < len && !is_separator(input[i])){
-                i++;
+            // Are you reading a word?
+            if(isalnum((unsigned char)input[i] && ((i-1 >= 0 && isalnum((unsigned char)input[i-1])) || i == 0))){
+                // You can skip the whole word
+                while(i < len && isalnum((unsigned char)input[i])){
+                    i++;
+                    // for debug
+                    c = tolower((unsigned char)input[i]);
+                }
+                still_in_root = true;
+                continue;
+            }else{
+                // Do you still in root?
+                if(still_in_root){
+                    // Unlucky series
+                    continue;
+                }else{
+                    // Is the character before a word?
+                    if(i-1 >= 0 && isalnum((unsigned char)input[i-1])){
+                        still_in_root = true;
+                        continue;
+                    }else{
+                        // I restart from root with with this character
+                        i--;
+                        current_node = (Node_t*)((ACtree_t*)ACtree)->root_node;
+                        still_in_root = true;
+                    }
+                }
             }
-            continue;
-        }
-
-        // Check if the current_node is a leaf node and if the next char is a white space or end of sting
-        if(((Node_t*)current_node)->end_of_string && (i+1 == len || is_separator(input[i+1]))){
-            // Print the word found
-            Node_t * otp = current_node;
-            printf("Found a match: \"");
-            match(otp);
-            printf("\"\n");
-            current_node = (Node_t*)((ACtree_t*)ACtree)->root_node; // Reset the current node to root
-            eval = true;
+        }else{
+            // Do you find a pattern?
+            if(((Node_t*)current_node)->end_of_string){
+                // Is the next character a separator?
+                if(!isalnum((unsigned char)input[i+1])){
+                    // Print the word found
+                    Node_t* opt = current_node;
+                    printf("Found a match: \"");
+                    match(opt); // Print the match
+                    printf("\"\n");
+                    // current_node = (Node_t*)((ACtree_t*)ACtree)->root_node;
+                    eval = true; // Found a match
+                    // still_in_root = false;
+                    still_in_root = true; // Try to find a longer match
+                    continue;
+                }else{
+                    // You are still in a word
+                    // I skip the rest of the word (i.e iterate until I find a white space/separator or I finish the input)
+                    while(i < len && isalnum((unsigned char)input[i+1])){
+                        i++;
+                        // for debug
+                        c = tolower((unsigned char)input[i]); // Convert to lowercase using tolower function
+                    }
+                    still_in_root = false;
+                    continue;
+                }
+            }
+            still_in_root = false;    
         }
     }
+
     return eval;
 }
