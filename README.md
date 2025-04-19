@@ -64,7 +64,7 @@ where:
 
 Example: 
 ```sh
-./main shellshock_patterns.txt sqlinjection_patterns.txt
+./main command_injection.txt sql_injection.txt
 ```
 This command launches the HTTP server and loads both *Shellshock* and *SQL injection* patterns for detection.
 
@@ -80,12 +80,19 @@ If a pattern is matched, the server returns ```403 Forbidden - Forbidden: Malici
 
 ## Testing ##
 
-You can use ```curl``` to simulate different types of attack.
+You can find automated test scripts in ```attack_test.sh```.
 
-For example:
+To run the test script first do:
 ```sh
-curl -X POST http://localhost:8080 -d "username=' OR '1'='1"
+chmod +x attack_test.sh 
 ```
+to make it **executable**.
+
+Then do:
+```sh
+./attack_test.sh
+```
+to **run** the script.
 
 ### License ###
 
