@@ -94,6 +94,37 @@ Then do:
 ```
 to **run** the script.
 
+## How the Aho-Corasick Parser Works ##
+
+This project implements a custom version of the **Aho-Corasick algorithm**. In this implementation, all *fail links* are set to the root node, and the parser logic follows a custom flow that minimizes false positives and maximizes detection accuracy.
+
+### Core Logic ###
+
+The parser reads the input **one character at a time** and performs a single traversal step in the trie. Based on the result of that step, it applies the following logic:
+
+- **Did the traversal return to ROOT?**
+  - **Yes: Am I currently reading a word?**
+    - **Yes:** *Skip the entire word — it’s a bad match!*
+    - **No:** *Was I already in ROOT before?*
+      - **Yes:** *Continue to next character*.
+      - **No:** *Is the previous character alphanumeric?*
+        - **Yes:** *Continue to next character*.
+        - **No:** *Restart from ROOT with this character*.
+  - **No: Did I reach a terminal (leaf) node?**
+    - **Yes: Is the next character NOT alphanumeric?**
+      - **Yes:** *Match detected! - the match is printed to stdout for logging purposes*
+      - **No:** *Skip the rest of the word — it may be a partial match! (e.g. SELECTED)*.
+    - **No:** *Continue scanning*.
+
+### Why This Approach Is Effective ###
+
+- **Avoids false positives** by skipping partial or embedded keywords (e.g., ```SELECT``` in ```SELECTION```).
+- **Prevents unnecessary rescanning** by skipping words early when mismatch is detected.
+- **Improves match reliability** by reprocessing some characters if necessary (e.g., after early return to ROOT).
+
+**Key insight:**  
+Re-evaluating a character after falling into ROOT, rather than skipping it, helps catch valid patterns that might begin at that point. This small change significantly reduces missed matches and improves parsing accuracy.
+
 ### License ###
 
 All the contents of this repository are shared using the [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
