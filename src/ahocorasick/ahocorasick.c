@@ -274,7 +274,7 @@ bool parser(char* input, int len, ACtree_t* ACtree){
             // Do you find a pattern?
             if(((Node_t*)current_node)->end_of_string){
                 // Is the next character a separator?
-                if(!isalnum((unsigned char)input[i+1])){
+                if(i+1 < len && !isalnum((unsigned char)input[i+1])){
                     // Print the word found
                     Node_t* opt = current_node;
                     printf("Found a match: \"");
@@ -288,7 +288,7 @@ bool parser(char* input, int len, ACtree_t* ACtree){
                 }else{
                     // You are still in a word
                     // I skip the rest of the word (i.e iterate until I find a white space/separator or I finish the input)
-                    while(i < len && isalnum((unsigned char)input[i+1])){
+                    while(i+1 < len && isalnum((unsigned char)input[i+1])){
                         i++;
                         // for debug
                         c = tolower((unsigned char)input[i]); // Convert to lowercase using tolower function
