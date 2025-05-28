@@ -52,6 +52,8 @@ char* decoding(char* text, int text_len){
                 // Se non è valido, copia il carattere '%' normalmente
                 decoded_text[j++] = text[i];
             }
+        } else if(text[i] == '+'){
+            decoded_text[j++] = ' ';
         } else {
             decoded_text[j++] = text[i];
         }
