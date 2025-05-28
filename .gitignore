@@ -1,0 +1,9 @@
+# IDEs and editors
+.vscode/
+.idea/
+
+# Executable C
+*.exe
+
+# Object files
+*.o
