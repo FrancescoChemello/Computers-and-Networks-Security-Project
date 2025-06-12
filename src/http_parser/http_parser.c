@@ -10,17 +10,7 @@
 
 #include "http_parser.h"
 
-// Method to print the line
-// For debugging purposes
-// This method is not used in the final version of the code
-void print_line(char* c, int len){
-    for(int i = 0; i < len; i++){
-        printf("%c", c[i]);
-    }
-}
-
 // Method that checks if there is malicious content in the header
-// This method is called if the request is a GET or HEADER request
 bool header_parser(char* header, int header_len){
     int i = 0;
     int j = 0;
@@ -34,13 +24,8 @@ bool header_parser(char* header, int header_len){
             if(j + 1 < header_len && header[j + 1] == '\n'){
                 // Found a CRLF -> end of an header line
                 // Pass to the parser the header line
-
-                // For debugging purposes
-                // printf("Evaluation of the HEADER line: >>");
-                // print_line(header + i, j - i);
-                // printf("<<\n");
-
                 bool eval = parser(header + i, j - i, ACtree);
+
                 // Implement OR function
                 malicious = malicious || eval;
                 i = j + 2;
@@ -49,11 +34,7 @@ bool header_parser(char* header, int header_len){
         }
     }
 
-    // For debugging purposes
-    // printf("Evaluation of the HEADER line: >>");
-    // print_line(header + i, j - i);
-    // printf("<<\n");
-
+    // Parse the last part of the header if it exists
     bool eval = parser(header + i, j - i + 2, ACtree);
     // Implement OR function
     malicious = malicious || eval;
@@ -75,11 +56,7 @@ bool header_body_parser(char* header, int header_len, char* body, int body_len){
         char c = body[j];
         if(c == '\n'){
 
-            // For debugging purposes
-            // printf("Evaluation of the BODY line: >>");
-            // print_line(body + i, j - i);
-            // printf("<<\n");
-
+            // Parse the body
             bool eval = parser(body + i, j - i, ACtree);
 
             // Implement OR function
@@ -89,12 +66,8 @@ bool header_body_parser(char* header, int header_len, char* body, int body_len){
             j += 1; // Skip the newline character
         }
     }
-
-    // For debugging purposes
-    // printf("Evaluation of the BODY line: >>");
-    // print_line(body + i, j - i);
-    // printf("<<\n");
-
+    
+    // Parse the last part of the body if it exists
     bool eval = parser(body + i, j - i, ACtree);
 
     // Implement OR function

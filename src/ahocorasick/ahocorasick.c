@@ -115,12 +115,12 @@ Node_t* add_node(ACtree_t* ACtree, Node_t* parent_node, char value){
     // Create a new node
     Node_t* new_node = (Node_t*)create_node();
     
-    new_node->value = value;                            // Set the value of the new node
-    new_node->parent = parent_node;                     // Set the parent of the new node
+    new_node->value = value;                                // Set the value of the new node
+    new_node->parent = parent_node;                         // Set the parent of the new node
     new_node->fail_link = ((ACtree_t*)ACtree)->root_node;   // I want only exact match so fail link = root
-    new_node->num_children = 0;                         // Initialize the number of children to 0
-    new_node->end_of_string = false;                    // Initialize end_of_string to false
-    new_node->children = NULL;                          // Initialize children to NULL
+    new_node->num_children = 0;                             // Initialize the number of children to 0
+    new_node->end_of_string = false;                        // Initialize end_of_string to false
+    new_node->children = NULL;                              // Initialize children to NULL
     
     // Resize the array
     ((Node_t*)parent_node)->num_children += 1; // Increment the number of children of the parent node
@@ -129,9 +129,7 @@ Node_t* add_node(ACtree_t* ACtree, Node_t* parent_node, char value){
     // Add the new node to the children array
     int last_index = ((Node_t*)parent_node)->num_children - 1;
     ((Node_t*)parent_node)->children[last_index] = new_node; // Assign the pointer to the new node
-    
-    //((Node_t*)parent_node)->num_children++; // Increment the number of children of the parent node
-    
+      
     ((ACtree_t*)ACtree)->num_nodes += 1; // Increment the number of nodes in the tree
     
     return new_node; // Return the new node
@@ -215,12 +213,7 @@ Node_t* iter(Node_t* node, char input){
     for(int i = 0; i < ((Node_t*)node)->num_children; i++){
         Node_t* child = ((Node_t*)node)->children[i]; // Get the child node
 
-        // printf("Value of child %c\n", child->value); // Print the value of the child node
-
         if(child->value == input){
-
-            // printf("Found, I return the child\n");
-
             return child; // Return the child pointer
         }
     }
@@ -247,8 +240,6 @@ bool parser(char* input, int len, ACtree_t* ACtree){
                 // You can skip the whole word
                 while(i < len && isalnum((unsigned char)input[i])){
                     i++;
-                    // for debug
-                    c = tolower((unsigned char)input[i]);
                 }
                 still_in_root = true;
                 continue;
@@ -280,9 +271,7 @@ bool parser(char* input, int len, ACtree_t* ACtree){
                     printf("Found a match: \"");
                     match(opt); // Print the match
                     printf("\"\n");
-                    // current_node = (Node_t*)((ACtree_t*)ACtree)->root_node;
                     eval = true; // Found a match
-                    // still_in_root = false;
                     still_in_root = true; // Try to find a longer match
                     continue;
                 }else{

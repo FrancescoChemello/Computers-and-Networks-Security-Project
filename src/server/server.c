@@ -20,6 +20,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 4096
 
+// Function to find the end of the header in the HTTP request
 char* find_CRLF(char* buffer){
     char* header = NULL;
     char* temp = buffer;
@@ -33,6 +34,7 @@ char* find_CRLF(char* buffer){
     return buffer;
 }
 
+// Function to decode URL-encoded text
 char* decoding(char* text, int text_len){
     char* decoded_text = (char*)malloc(text_len + 1);
     if(decoded_text == NULL) {
@@ -42,14 +44,14 @@ char* decoding(char* text, int text_len){
     int j = 0;
     for(int i = 0; i < text_len; i++){
         if(text[i] == '%'){
-            // Verifica che ci siano almeno due caratteri dopo '%'
+            // Verify that there are at least two characters after '%'
             if(i + 2 < text_len && isxdigit(text[i + 1]) && isxdigit(text[i + 2])) {
                 int value;
                 sscanf(text + i + 1, "%2x", &value);
                 decoded_text[j++] = (char)value;
-                i += 2; // Salta i due caratteri processati
+                i += 2; // Skip the next two characters
             } else {
-                // Se non è valido, copia il carattere '%' normalmente
+                // If the format is incorrect, just copy the '%'
                 decoded_text[j++] = text[i];
             }
         } else if(text[i] == '+'){
@@ -124,9 +126,6 @@ void server(){
         }
         if(strcmp(method, "GET") == 0 || strcmp(method, "HEAD") == 0 || strcmp(method, "DELETE") == 0 || strcmp(method, "OPTIONS") == 0 || strcmp(method, "TRACE") == 0) {
 
-            // For debugging purposes
-            // printf("%s method detected!\n", method);
-            
             start = clock();
             
             // 2. Extract the section to analize with the parser
@@ -146,9 +145,6 @@ void server(){
                 continue;
             }
 
-            // For debugging purposes
-            // printf("Parser called!\n");
-
             // 3. Call the parser function with the header
             malicious = header_parser(header, strlen(header)); // Call the parser function with the header
             
@@ -157,14 +153,8 @@ void server(){
 
             free(header);
 
-            // For debugging purposes
-            // printf("Parsing compleated!\n");
-
         }else{
             if(strcmp(method, "POST") == 0 || strcmp(method, "PUT") == 0 || strcmp(method, "PATCH") == 0) {
-
-                // For debugging purposes
-                // printf("%s method detected!\n, method");
 
                 start = clock();
 
@@ -225,9 +215,6 @@ void server(){
                     continue;
                 }
 
-                // For debugging purposes
-                // printf("Parser called!\n");
-
                 // 3. Call the parser function with the header
                 malicious = header_body_parser(header, strlen(header), body, strlen(body)); // Call the parser function with the header and body
                 end = clock();
@@ -236,9 +223,6 @@ void server(){
 
                 free(header);
                 free(body);
-
-                // For debugging purposes
-                // printf("Parsing compleated!\n");
 
             }else{
                 // If the request is neither GET nor POST, handle it accordingly
@@ -271,9 +255,6 @@ void server(){
                 "\r\n"
                 "Hello, user!\n";
         }
-
-        // For debugging purposes
-        // printf("Sending the response\n");
 
         // Send back the response
         send(new_socket, response, strlen(response), 0);
