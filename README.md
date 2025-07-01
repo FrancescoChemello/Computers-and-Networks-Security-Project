@@ -2,7 +2,7 @@
 Computers and Networks Security - 2024/25
 
 ## Overview ##
-This project implements a lightweight **Intrusion Detection System (IDS)** based on the **Aho-Corasick algorithm** for string matching. It is designed to detect malicious patterns in HTTP requests, such as *SQL injection* and *Shellshock attacks*.
+This project implements a simple **Host-based Intrusion Prevention System (HIPS)** based on the **Aho-Corasick algorithm** for string matching. It is designed to detect malicious patterns in HTTP requests, such as *SQL injection* and *Shellshock attacks*.
 
 The system includes:
 * A custom implementation of the Aho-Corasick algorithm for *exact-matching* keyword detection.
