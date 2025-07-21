@@ -23,7 +23,7 @@ ACtree_t * init_tree_from_file(const char *filename, ACtree_t * ACtree) {
         ACtree = create_tree();
         // Check if the tree was created successfully
         if(ACtree == NULL){
-            printf("Failed to create Aho-Corasick tree\n");
+            fprintf(stderr, "Failed to create Aho-Corasick tree\n");
             return NULL; // Return NULL if tree creation fails
         }
     }
@@ -33,14 +33,22 @@ ACtree_t * init_tree_from_file(const char *filename, ACtree_t * ACtree) {
 
     FILE *file = fopen(full_path, "r"); // Open the file in read mode
     if(file == NULL){
-        perror("Failed to open file");
+        fprintf(stderr, "Failed to open file");
         return NULL; // Return NULL if the file cannot be opened
     }
 
     char line[256]; // Buffer to store each line from the file
     while(fgets(line, sizeof(line), file)){ // Read each line from the file
         line[strcspn(line, "\r\n")] = 0; // Remove the newline character from the end of the line
-        add_string(ACtree, line); // Add the pattern to the tree
+        ACtree_t* eval = add_string(ACtree, line); // Add the pattern to the tree
+
+        // Check if the string was added successfully
+        if (eval == NULL) {
+            fprintf(stderr, "Failed to add string \"%s\" to the Aho-Corasick tree\n", line);
+            delete_tree(ACtree); // Free the tree if adding the string fails
+            fclose(file);
+            return NULL; // Return NULL if adding the string fails
+        }
     }
 
     fclose(file); // Close the file after reading all patterns
@@ -69,6 +77,11 @@ int main(int argc, char ** argv){
 
     // Start the server
     server();
+
+    // Clean up the Aho-Corasick tree
+    if(ACtree != NULL){
+        delete_tree(ACtree);
+    }
 
     return 0;
 }
