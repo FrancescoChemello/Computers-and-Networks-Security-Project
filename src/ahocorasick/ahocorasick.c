@@ -19,10 +19,11 @@ ACtree_t* ACtree = NULL;
 /**
  * Structure for a node in the tree
  * |--------------------|
- * | VALUE             |
+ * | VALUE              |
  * | PARENT NODE        |
  * | FAIL LINK          |
  * | NUMBER OF CHILDREN |
+ * | END OF STRING      |
  * | CHILDREN           |
  * |--------------------|
  * 
@@ -62,6 +63,8 @@ struct ACtree{
 Node_t* create_node(){
     // Allocate memory for the node
     Node_t* new_node = (Node_t*)malloc(sizeof(struct node));
+    
+    // Check if the memory allocation was successful
     if (new_node == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         return NULL;
@@ -82,20 +85,18 @@ Node_t* create_node(){
 ACtree_t* create_tree(){
     // Allocate memory for the tree
     ACtree_t* tree = (ACtree_t*)malloc(sizeof(struct ACtree));
+    
+    // Check if the memory allocation was successful
     if (tree == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         return NULL;
     }
-
+    
     // Initialize the tree with the root node
     tree->root_node = create_node(); // Create the root node
     ((Node_t*)tree->root_node)->value = '\0';
     ((Node_t*)tree->root_node)->fail_link = (Node_t*)tree->root_node;
     tree->num_nodes = 0; // Initialize the number of nodes to 0
-    if (tree->root_node == NULL) {
-        free(tree); // Free the tree if root node creation fails
-        return NULL;
-    }
 
     return tree;    
 }
@@ -114,6 +115,12 @@ Node_t* add_node(ACtree_t* ACtree, Node_t* parent_node, char value){
     
     // Create a new node
     Node_t* new_node = (Node_t*)create_node();
+
+    // Check if the new node was created successfully
+    if (new_node == NULL) {
+        fprintf(stderr, "Failed to create new node\n");
+        return NULL;
+    }
     
     new_node->value = value;                                // Set the value of the new node
     new_node->parent = parent_node;                         // Set the parent of the new node
@@ -124,7 +131,7 @@ Node_t* add_node(ACtree_t* ACtree, Node_t* parent_node, char value){
     
     // Resize the array
     ((Node_t*)parent_node)->num_children += 1; // Increment the number of children of the parent node
-    ((Node_t*)parent_node)->children = (Node_t**)realloc(((Node_t*)parent_node)->children, sizeof(Node_t*) * ((Node_t*)parent_node)->num_children); // Resize the array
+    ((Node_t*)parent_node)->children = (Node_t**)realloc(((Node_t*)parent_node)->children, sizeof(Node_t*) * ((Node_t*)parent_node)->num_children);
     
     // Add the new node to the children array
     int last_index = ((Node_t*)parent_node)->num_children - 1;
@@ -158,10 +165,11 @@ void print_tree(ACtree_t* ACtree){
 // Delete a node (recursive function)
 void delete_node(Node_t* node){
     for(int i = 0; i < ((Node_t*)node)->num_children; i++){
-        delete_node(*((Node_t*)node)->children + i);
+        delete_node(((Node_t*)node)->children[i]);
     }
 
     free(((Node_t*)node)->children); // Free the children array
+    free(node); // Free the node itself
 }
 
 // Delete the tree
@@ -172,10 +180,11 @@ void delete_tree(ACtree_t* ACtree){
 
     // Recursively delete all the node of the tree using delete_node
     for(int i = 0; i < ((Node_t*)((ACtree_t*)ACtree)->root_node)->num_children; i++){
-        delete_node(*(((ACtree_t*)ACtree)->root_node)->children + i); // Recursively delete the children
+        delete_node((((ACtree_t*)ACtree)->root_node)->children[i]); // Recursively delete the children
     }
 
     free(((ACtree_t*)ACtree)->root_node); // Free the root node
+    free(ACtree); // Free the tree structure
 }
 
 // Add a string to the tree
@@ -191,6 +200,14 @@ ACtree_t* add_string(ACtree_t* ACtree, char* keyword){
         
         // Add a new node to the tree for each character in the string
         parent_node = add_node(ACtree, parent_node, c); // Add the node to the tree
+
+        // Check if the node was added successfully
+        if (parent_node == NULL) {
+            fprintf(stderr, "Failed to add node for character '%c' for string \"%s\"\n", c, keyword);
+            // Free the tree if node addition fails
+            delete_tree(ACtree);
+            return NULL;
+        }
     }
 
     ((Node_t*)parent_node)->end_of_string = true; // Set the end_of_string flag to true for the last node
